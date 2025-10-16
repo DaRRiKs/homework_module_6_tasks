@@ -250,3 +250,189 @@ public class Program
 •	Обеспечьте возможность добавления и удаления наблюдателей.
 •	Реализуйте уведомление наблюдателей при изменении состояния субъекта. */
 
+/* using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+
+public interface IObserver
+{
+    void Update(string currency, decimal newRate);
+}
+
+public interface ISubject
+{
+    void Attach(IObserver observer);
+    void Detach(IObserver observer);
+    void Notify(string currency);
+}
+
+public class CurrencyExchange : ISubject
+{
+    private readonly List<IObserver> _observers = new List<IObserver>();
+    private readonly Dictionary<string, decimal> _rates = new Dictionary<string, decimal>(StringComparer.OrdinalIgnoreCase);
+
+    public void Attach(IObserver observer)
+    {
+        if (!_observers.Contains(observer))
+        {
+            _observers.Add(observer);
+            Console.WriteLine($"Подписчик добавлен: {observer.GetType().Name}");
+        }
+    }
+
+    public void Detach(IObserver observer)
+    {
+        if (_observers.Remove(observer))
+        {
+            Console.WriteLine($"Подписчик удалён: {observer.GetType().Name}");
+        }
+    }
+
+    public void SetRate(string currency, decimal newRate)
+    {
+        if (string.IsNullOrWhiteSpace(currency))
+        {
+            Console.WriteLine("Ошибка: валюта не указана.");
+            return;
+        }
+        if (newRate <= 0)
+        {
+            Console.WriteLine("Ошибка: курс должен быть > 0.");
+            return;
+        }
+
+        _rates[currency] = newRate;
+        Console.WriteLine($"\nИзмение курса: {currency} = {newRate}");
+        Notify(currency);
+    }
+
+    public decimal? GetRate(string currency)
+    {
+        return _rates.TryGetValue(currency, out var r) ? r : (decimal?)null;
+    }
+
+    public async Task SetRateAsync(string currency, decimal newRate, int delayMs = 300)
+    {
+        await Task.Delay(delayMs);
+        SetRate(currency, newRate);
+    }
+
+    public void Notify(string currency)
+    {
+        foreach (var obs in _observers.ToList())
+        {
+            var rate = GetRate(currency);
+            if (rate.HasValue)
+                obs.Update(currency, rate.Value);
+        }
+    }
+}
+
+public class ConsoleLoggerObserver : IObserver
+{
+    public void Update(string currency, decimal newRate)
+    {
+        Console.WriteLine($"[Logger] {currency}: {newRate}");
+    }
+}
+
+public class ThresholdAlertObserver : IObserver
+{
+    private readonly Dictionary<string, (decimal? min, decimal? max)> _rules =
+        new Dictionary<string, (decimal?, decimal?)>(StringComparer.OrdinalIgnoreCase);
+
+    public void SetRule(string currency, decimal? min, decimal? max)
+    {
+        _rules[currency] = (min, max);
+    }
+
+    public void Update(string currency, decimal newRate)
+    {
+        if (_rules.TryGetValue(currency, out var rule))
+        {
+            bool low = rule.min.HasValue && newRate < rule.min.Value;
+            bool high = rule.max.HasValue && newRate > rule.max.Value;
+
+            if (low)
+                Console.WriteLine($"[Alert] {currency} ниже минимума {rule.min}: {newRate}");
+            else if (high)
+                Console.WriteLine($"[Alert] {currency} выше максимума {rule.max}: {newRate}");
+            else
+                Console.WriteLine($"[Alert] {currency} в норме: {newRate} (диапазон {rule.min}–{rule.max})");
+        }
+        else
+        {
+            Console.WriteLine($"[Alert] Нет правил для {currency}, значение: {newRate}");
+        }
+    }
+}
+
+public class StatsObserver : IObserver
+{
+    private readonly Dictionary<string, (int count, decimal last)> _stats =
+        new Dictionary<string, (int, decimal)>(StringComparer.OrdinalIgnoreCase);
+
+    public void Update(string currency, decimal newRate)
+    {
+        if (_stats.TryGetValue(currency, out var st))
+        {
+            _stats[currency] = (st.count + 1, newRate);
+        }
+        else
+        {
+            _stats[currency] = (1, newRate);
+        }
+        Console.WriteLine($"[Stats] {currency}: обновлений={_stats[currency].count}, последняя={_stats[currency].last}");
+    }
+
+    public void PrintReport()
+    {
+        Console.WriteLine("\nОтчёт StatsObserver");
+        foreach (var kv in _stats)
+        {
+            Console.WriteLine($"{kv.Key}: обновлений={kv.Value.count}, последняя цена={kv.Value.last}");
+        }
+    }
+}
+
+
+public class Program
+{
+    public static async Task Main()
+    {
+        Console.OutputEncoding = System.Text.Encoding.UTF8;
+
+        var exchange = new CurrencyExchange();
+
+        var logger = new ConsoleLoggerObserver();
+        var alerts = new ThresholdAlertObserver();
+        var stats = new StatsObserver();
+
+        alerts.SetRule("USD/KZT", min: 470m, max: 520m);
+        alerts.SetRule("EUR/KZT", min: 500m, max: 560m);
+
+        exchange.Attach(logger);
+        exchange.Attach(alerts);
+        exchange.Attach(stats);
+
+        exchange.SetRate("USD/KZT", 490m);
+        exchange.SetRate("EUR/KZT", 530m);
+
+        await exchange.SetRateAsync("USD/KZT", 515m);
+        await exchange.SetRateAsync("USD/KZT", 465m);
+        await exchange.SetRateAsync("EUR/KZT", 555m);
+        await exchange.SetRateAsync("EUR/KZT", 570m);
+
+        Console.WriteLine("\nУдаляем логгер и продолжаем");
+        exchange.Detach(logger);
+
+        await exchange.SetRateAsync("USD/KZT", 500m);
+        await exchange.SetRateAsync("EUR/KZT", 540m);
+
+        stats.PrintReport();
+
+        Console.WriteLine("\nГотово.");
+    }
+} */

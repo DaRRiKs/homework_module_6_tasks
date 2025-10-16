@@ -12,3 +12,4 @@ C:\Users\darri\source\repos\homework_module_6_tasks\homework_module_6_tasks\obj\
 C:\Users\darri\source\repos\homework_module_6_tasks\homework_module_6_tasks\obj\Debug\net8.0\homework_module_6_tasks.pdb
 C:\Users\darri\source\repos\homework_module_6_tasks\homework_module_6_tasks\obj\Debug\net8.0\homework_module_6_tasks.genruntimeconfig.cache
 C:\Users\darri\source\repos\homework_module_6_tasks\homework_module_6_tasks\obj\Debug\net8.0\ref\homework_module_6_tasks.dll
+C:\Users\darri\source\repos\homework_module_6_tasks\homework_module_6_tasks\obj\Debug\net8.0\homework_module_6_tasks.sourcelink.json
